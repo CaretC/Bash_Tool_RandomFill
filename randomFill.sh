@@ -40,6 +40,11 @@ verboseMsg() {
     fi
 }
 
+errorMsg() {
+    echo -e "${RED}$1${DEFAULT}"
+    exit
+}
+
 setDir() {
     # Check if the directory exists
     if [ -d $1 ]; then
@@ -76,8 +81,7 @@ setLen() {
         verboseSetupMsg "Data length set to ${CYAN}$1${DEFAULT}"
         LENGTH=$1
     else
-        echo "Invalid data length input, data length should be between 1 -> 35535 characters."
-        exit
+        errorMsg "Invalid data length input, data length should be between 1 -> 35535 characters."        
     fi
 }
 
@@ -95,6 +99,31 @@ setText() {
     EXTENSION=".txt"
 }
 
+setUnsafeMode() {
+    echo -e "${RED}DANGER!${DEFAULT} Enabling unsafe-mode means that all the valid file content will be deleted and re-populated with random data!"
+    echo "Please ensure you are sure that you want to use this option before you enable it as all changes are irriversable!"
+    echo "Do you want to enable Unsafe-mode? [y/n]"
+
+    validOption=0;
+
+    while [[ $validOption != 1 ]]; do
+        read input
+        
+        if [[ $input == "y" || $input == "Y" || $input == "yes" || $input == "Yes" ]]; then
+            SAFE="FALSE"
+            echo -e "Unsafe-mode enabled!"
+            verboseSetupMsg "${RED}Unsafe-Mode Enabled! File content will be overwritten!${DEFAULT}"
+            validOption=1
+        elif [[ input == "n" || $input == "N" || $input == "n" || $input == "No" ]]; then
+            SAFE="TRUE"
+            echo "Unsafe-mode not enabled!"
+            validOption=1
+        else
+            echo "Invalid option input please confirm with [y/n]"
+        fi
+    done
+}
+
 addFileData() {
     if [[ $DATA == "numeric" ]]; then
         fileData=""
@@ -102,21 +131,22 @@ addFileData() {
         for ((i = 0 ; i < $LENGTH ; i++)); do
             fileData+="1";
         done
-
-        echo $fileData >> $DIRECTORY/$1
+        
+        if [[ $SAFE == "TRUE" ]]; then
+            echo $fileData >> $DIRECTORY/$1
+        elif [[ $SAFE == "FALSE" ]]; then
+            echo $fileData > $DIRECTORY/$1
+        else
+            errorMsg "Invalid saftey mode! Exiting script and leaving all files un-touched."
+        fi        
     fi
 }
 
 # Main
 # ====
-
-# Draft Args
-# --unsafe-mode
-
-# Confirm that at least one argument has been suppllied
+# Confirm that at least one argument has been suplied
 if [[ $# -le 0 ]]; then
-    echo Invalid number of arguments supplied, the funcion requires at lest one argument.
-    exit
+    errorMsg Invalid number of arguments supplied, the funcion requires at lest one argument.
 fi
 
 # Loop through the function arguments
@@ -145,7 +175,7 @@ while [[ $# -gt 0 ]]; do
             shift # Shift past arg
             ;;
         --unsafe-mode)
-            echo Unsafe mode
+            setUnsafeMode
             shift # Shift past arg
             ;;
         -v | --verbose)
