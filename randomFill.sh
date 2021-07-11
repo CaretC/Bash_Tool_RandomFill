@@ -4,12 +4,13 @@
 
 # Variables
 # =========
-DIRECTORY=$(pwd)/test
+DIRECTORY=$(pwd)
 LENGTH=255
 SAFE="TRUE"
 DATA="numeric"
 EXTENSION=".txt"
 VERBOSE="FALSE"
+VERBOSE_SETUP_MSGS=()
 
 # Terminal Colors
 # ===============
@@ -21,16 +22,22 @@ CYAN="\033[0;36m"
 
 # Functions
 # =========
-verboseMsg() {                                                                  
-    if [[ $VERBOSE -eq "TRUE" ]]; then                                          
-        echo -e $1                                                              
-    fi                                                                          
-} 
+verboseSetupMsg() {                                                                                                            
+    VERBOSE_SETUP_MSGS+=("$1")                                                           
+}
+
+printVerboseSetupMsgs() {
+    if [[ $VERBOSE == "TRUE" ]]; then
+        for msg in "${VERBOSE_SETUP_MSGS[@]}"; do
+            echo -e $msg
+        done
+    fi
+}
 
 setDir() {
     # Check if the directory exists
     if [ -d $1 ]; then
-        verboseMsg "DIRECTORY set to ${BLUE}$1${DEFAULT}"
+        verboseSetupMsg "DIRECTORY set to ${BLUE}$1${DEFAULT}"
 
         DIRECTORY=$1
     else
@@ -60,7 +67,7 @@ displayHelp() {
 
 setLen() {
     if [[ $1 -gt 0 && $1 -lt 65536 ]]; then
-        verboseMsg "Data length set to ${CYAN}$1${DEFAULT}"
+        verboseSetupMsg "Data length set to ${CYAN}$1${DEFAULT}"
         LENGTH=$1
     else
         echo "Invalid data length input, data length should be between 1 -> 35535 characters."
@@ -70,11 +77,16 @@ setLen() {
 
 setDataNum() {
     if [[ $DATA != "numeric" ]]; then
-        verboseMsg "Data type set to ${GREEN}numeric${DEFAULT} from ${CYAN}$DATA${DEFAULT}"       
+        verboseSetupMsg "Data type set to ${GREEN}numeric${DEFAULT} from ${CYAN}$DATA${DEFAULT}"       
         DATA="numeric"
     else
-        verboseMsg "Data type already set to ${GREEN}numeric${DEFAULT}"
+        verboseSetupMsg "Data type already set to ${GREEN}numeric${DEFAULT}"
     fi
+}
+
+setText() {
+    verboseSetupMsg "Files with the extension ${CYAN}.txt${DEFAULT} will be populated with data."
+    EXTENSION=".txt"
 }
 
 # Main
@@ -112,7 +124,7 @@ while [[ $# -gt 0 ]]; do
             shift # Shift past arg
             ;;
         -t | --text)
-            echo Text
+            setText
             shift # Shift past arg
             ;;
         --unsafe-mode)
@@ -129,6 +141,9 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Print any verbose setup messages
+printVerboseSetupMsgs
 
 # Do Stuff
 # Populate the files with data
