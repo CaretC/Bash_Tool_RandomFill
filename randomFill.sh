@@ -15,6 +15,7 @@ VERBOSE="FALSE"
 # ===============
 RED="\033[0;31m"
 BLUE="\033[0;34m"
+GREEN="\033[0;32m"
 DEFAULT="\033[0;37m"
 CYAN="\033[0;36m"
 
@@ -67,10 +68,13 @@ setLen() {
     fi
 }
 
-verboseMsg() {
-    if [[ $VERBOSE == "TRUE" ]]; then
-        echo -e $1
-    fi 
+setDataNum() {
+    if [[ $DATA != "numeric" ]]; then
+        verboseMsg "Data type set to ${GREEN}numeric${DEFAULT} from ${CYAN}$DATA${DEFAULT}"       
+        DATA="numeric"
+    else
+        verboseMsg "Data type already set to ${GREEN}numeric${DEFAULT}"
+    fi
 }
 
 # Main
@@ -79,7 +83,6 @@ verboseMsg() {
 # Draft Args
 # -t | --text
 # --unsafe-mode
-# -n | --numeric
 
 # Confirm that at least one argument has been suppllied
 if [[ $# -le 0 ]]; then
@@ -105,9 +108,8 @@ while [[ $# -gt 0 ]]; do
             shift # Shift past value
             ;;
         -n | --numeric)
-            echo Numeric
+            setDataNum
             shift # Shift past arg
-            shift # Shift past value
             ;;
         -t | --text)
             echo Text
