@@ -64,14 +64,18 @@ displayHelp() {
     echo With no DIRECTORY specified the script will search the current directory.
     echo
     echo OPTIONS:
+    echo -e "\t -a, --ascii\t Populate the file with ASCII data <<TODO>>"
+    echo -e "\t -b, --binary\t Populate the file with binary data <<TODO>>"
     echo -e "\t --clear-data\t Clear all valid files of data to leave blank files"
     echo -e "\t -d, --dir\t Set the DIRECTORY to search"
     echo -e "\t -h, --help\t Display help information"
     echo -e "\t -l, --length\t Specify the number of characters for data (255 characters default)"
     echo -e "\t -n, --numeric\t Populate the file with numeric data (default)"
     echo -e "\t -t, --text\t Populate all text (*.txt) files with data in DIRECTORY (default)"
-    echo -e "\t --unsafe-mode\t Overide the current file content with the new data <<TODO>>"
+    echo -e "\t --unsafe-mode\t Overide the current file content with the new data"
     echo -e "\t -v, --verbose\t Enable verbose mode"
+    echo -e "\t -w, --words\t Populate the file with English words data <<TODO>>"
+    echo -e "\t -x, --hex\t Populate the file with hexadecimal data <<TODO>>"
     echo
     echo EXAMPLES:
     echo -e "\t TODO: <<Add Examples>>"
@@ -183,6 +187,16 @@ fi
 # Loop through the function arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
+        -a | --ascii)
+            echo Ascii data TODO
+            shift # Shift past arg
+            exit
+            ;;
+        -b | --binary)
+            echo Binary data TODO
+            shift # Shift past arg
+            exit
+            ;;
         --clear-data)
             clearData
             shift # Shift past arg
@@ -217,6 +231,16 @@ while [[ $# -gt 0 ]]; do
         -v | --verbose)
             VERBOSE="TRUE"
             shift # Shift past arg
+            ;;
+        -w | --words)
+            echo Words data TODO
+            shift # Shift past arg
+            exit
+            ;;
+        -x | --hex)
+            echo Hexadecimal data TODO
+            shift # Shift past arg
+            exit
             ;;
         *)
             echo Invalid argument supplied $1
