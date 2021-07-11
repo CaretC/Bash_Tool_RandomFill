@@ -37,12 +37,20 @@ displayHelp() {
     echo -e "\t TODO: <<Add Examples>>"
 }
 
+setLen() {
+    if [[ $1 -gt 0 && $1 -lt 65536 ]]; then
+        LENGTH=$1
+    else
+        echo "Invalid data length input, data length should be between 1 -> 35535 characters."
+        exit
+    fi
+}
+
 # Main
 # ====
 
 # Draft Args
 # -d | --dir
-# -h | --help
 # -l | --len
 # -t | --text
 # --unsafe-mode
@@ -51,6 +59,7 @@ displayHelp() {
 # Confirm that at least one argument has been suppllied
 if [[ $# -le 0 ]]; then
     echo Invalid number of arguments supplied, the funcion requires at lest one argument.
+    exit
 fi
 
 # Loop through the function arguments
@@ -66,7 +75,7 @@ while [[ $# -gt 0 ]]; do
             shift # Shift past arg
             ;;
         -l | --length)
-            echo Len $2
+            setLen $2
             shift # Shift past arg
             shift # Shift past value
             ;;
@@ -89,3 +98,6 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Do Stuff
+# Populate the files with data
