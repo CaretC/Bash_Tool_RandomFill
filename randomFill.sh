@@ -64,6 +64,7 @@ displayHelp() {
     echo With no DIRECTORY specified the script will search the current directory.
     echo
     echo OPTIONS:
+    echo -e "\t --clear-data\t Clear all valid files of data to leave blank files"
     echo -e "\t -d, --dir\t Set the DIRECTORY to search"
     echo -e "\t -h, --help\t Display help information"
     echo -e "\t -l, --length\t Specify the number of characters for data (255 characters default)"
@@ -124,6 +125,31 @@ setUnsafeMode() {
     done
 }
 
+clearData() {
+    echo -e "${RED}DANGER!${DEFAULT} Enabling this option means that all the valid file content will be deleted and files left empty!"
+    echo "Please ensure you are sure that you want to use this option before you enable it as all changes are irriversable!"
+    echo -e "Do you want to clear data in ${RED}ALL${DEFAULT} valid files? [y/n]" 
+    validOption=0;                                                              
+                                                                                 
+    while [[ $validOption != 1 ]]; do                                           
+        read input                                                              
+                                                                                 
+        if [[ $input == "y" || $input == "Y" || $input == "yes" || $input == "Yes" ]]; then
+            SAFE="FALSE"                      
+            DATA="clear"                                  
+            echo -e "Data clear enabled!"                                      
+            verboseSetupMsg "${RED}Data Clear Enabled! File content will be overwritten!${DEFAULT}"
+            validOption=1                                                       
+        elif [[ input == "n" || $input == "N" || $input == "n" || $input == "No" ]]; then
+            SAFE="TRUE"                                                         
+            echo "Data clear mode not enabled!"                                     
+            validOption=1                                                       
+        else                                                                    
+            echo "Invalid option input please confirm with [y/n]"               
+        fi                                                                      
+    done  
+}
+
 addFileData() {
     if [[ $DATA == "numeric" ]]; then
         fileData=""
@@ -139,6 +165,10 @@ addFileData() {
         else
             errorMsg "Invalid saftey mode! Exiting script and leaving all files un-touched."
         fi        
+    elif [[ $DATA == "clear" ]]; then
+        > $DIRECTORY/$1
+    else
+        errorMsg "Invalid data mode! Exiting script and leaving all files un-touched."
     fi
 }
 
@@ -152,6 +182,11 @@ fi
 # Loop through the function arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
+        --clear-data)
+            clearData
+            shift # Shift past arg
+            continue
+            ;;
         -d | --dir)
             setDir $2
             shift # Shift past arg
@@ -210,7 +245,12 @@ verboseMsg "${GREEN}$validFileNum${DEFAULT} ${CYAN}$EXTENSION${DEFAULT} files fo
 
 # Loop through all these files and populate with DATA
 for file in $validFiles; do
-    verboseMsg "Adding data to ${BLUE}$DIRECTORY/$file${DEFAULT}..."
+    if [[ $DATA != "clear" ]]; then
+        verboseMsg "Adding data to ${BLUE}$DIRECTORY/$file${DEFAULT}..."
+    else
+        verboseMsg "Clearing data from ${BLUE}$DIRECTORY/$file${DEFAULT}..."
+    fi
+
     addFileData $file
 done
 
@@ -218,5 +258,5 @@ done
 cd $startDir
 
 # Done
-verboseMsg "All ${GREEN}$validFileNum${DEFAULT}${CYAN}$EXTENSION${DEFAULT} files in ${BLUE}$DIRECTORY${DEFAULT} processed."
+verboseMsg "All ${GREEN}$validFileNum${DEFAULT} ${CYAN}$EXTENSION${DEFAULT} files in ${BLUE}$DIRECTORY${DEFAULT} processed."
 verboseMsg "Script complete"
