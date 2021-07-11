@@ -34,6 +34,12 @@ printVerboseSetupMsgs() {
     fi
 }
 
+verboseMsg() {
+    if [[ $VERBOSE == "TRUE" ]]; then
+       echo -e "$1"
+    fi
+}
+
 setDir() {
     # Check if the directory exists
     if [ -d $1 ]; then
@@ -58,7 +64,7 @@ displayHelp() {
     echo -e "\t -l, --length\t Specify the number of characters for data (255 characters default)"
     echo -e "\t -n, --numeric\t Populate the file with numeric data (default)"
     echo -e "\t -t, --text\t Populate all text (*.txt) files with data in DIRECTORY (default)"
-    echo -e "\t --unsafe-mode\t Overide the current file content with the new data"
+    echo -e "\t --unsafe-mode\t Overide the current file content with the new data <<TODO>>"
     echo -e "\t -v, --verbose\t Enable verbose mode"
     echo
     echo EXAMPLES:
@@ -89,11 +95,22 @@ setText() {
     EXTENSION=".txt"
 }
 
+addFileData() {
+    if [[ $DATA == "numeric" ]]; then
+        fileData=""
+        
+        for ((i = 0 ; i < $LENGTH ; i++)); do
+            fileData+="1";
+        done
+
+        echo $fileData >> $DIRECTORY/$1
+    fi
+}
+
 # Main
 # ====
 
 # Draft Args
-# -t | --text
 # --unsafe-mode
 
 # Confirm that at least one argument has been suppllied
@@ -145,5 +162,31 @@ done
 # Print any verbose setup messages
 printVerboseSetupMsgs
 
-# Do Stuff
-# Populate the files with data
+# Process Files
+# -------------
+# Start processing
+verboseMsg "Starting to process ${CYAN}$EXTENSION${DEFAULT} files in ${BLUE}$DIRECTORY${DEFAULT}..."
+
+# Change to required Directory
+startDir=$(pwd)
+cd $DIRECTORY
+
+# Search DIRECTORY for valid files with EXTENSION
+validFiles=$(ls | grep $EXTENSION)
+
+# Display search result
+validFileNum=$(wc -w <<< $validFiles)
+verboseMsg "${GREEN}$validFileNum${DEFAULT} ${CYAN}$EXTENSION${DEFAULT} files found in ${BLUE}$DIRECTORY${DEFAULT}"
+
+# Loop through all these files and populate with DATA
+for file in $validFiles; do
+    verboseMsg "Adding data to ${BLUE}$DIRECTORY/$file${DEFAULT}..."
+    addFileData $file
+done
+
+# Return to original directory
+cd $startDir
+
+# Done
+verboseMsg "All ${GREEN}$validFileNum${DEFAULT}${CYAN}$EXTENSION${DEFAULT} files in ${BLUE}$DIRECTORY${DEFAULT} processed."
+verboseMsg "Script complete"
