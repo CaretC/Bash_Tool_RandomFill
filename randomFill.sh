@@ -155,7 +155,8 @@ addFileData() {
         fileData=""
         
         for ((i = 0 ; i < $LENGTH ; i++)); do
-            fileData+="1";
+            val=($RANDOM %10)
+            fileData+="$val";
         done
         
         if [[ $SAFE == "TRUE" ]]; then
